@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -71,12 +73,17 @@ namespace BLink.Api
             services.AddTransient<IClubsRepository, ClubsRepository>();
             services.AddTransient<IMembersRepository, MembersRepository>();
             services.AddTransient<ICountriesRepository, CountriesRepository>();
+            services.AddTransient<IInvitationsRepository, InvitationsRepository>();
 
             services.AddTransient<ICountriesService, CountriesService>();
             services.AddTransient<IMembersService, MembersService>();
             services.AddTransient<IClubsService, ClubsService>();
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

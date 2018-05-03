@@ -1,4 +1,6 @@
 ﻿using BLink.Models;
+using BLink.Models.Enums;
+using BLink.Models.RequestModels.Invitations;
 using BLink.Models.RequestModels.Members;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,5 +20,11 @@ namespace BLink.Core.Services
         Task SaveChangesAsync();
 
         IEnumerable<PlayerFilterResult> GetPlayers(PlayerFilterCriteria filterCriteria);
+
+        Task<Member> GetPlayerById(int playerId);
+
+        IEnumerable<InvitationResponse>  GetMemberInvitations(string email);
+
+        Task RespondInvitation(int invitationId, InvitationStatus invitationStatus, Member member);
     }
 }

@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\IInvitationsService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BLink.Models\BLink.Models.csproj" />
   </ItemGroup>
 

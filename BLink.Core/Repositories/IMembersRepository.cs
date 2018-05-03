@@ -16,5 +16,7 @@ namespace BLink.Core.Repositories
         Task SaveChangesAsync();
 
         IEnumerable<PlayerFilterResult> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria);
+
+        Task<Member> GetPlayerById(int playerId);
     }
 }

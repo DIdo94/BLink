@@ -1,7 +1,7 @@
 ﻿using BLink.Models;
+using BLink.Models.RequestModels.Clubs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BLink.Models.RequestModels.Members;
 
 namespace BLink.Core.Services
 {
@@ -9,10 +9,14 @@ namespace BLink.Core.Services
     {
         IEnumerable<Club> GetAllClubs();
 
+        Task<Club> GetClubById(int clubId);
+
         Task CreateClub(Club club);
 
         Task SaveChangesAsync();
 
         Club GetMemberClub(string email);
+
+        Task InvitePlayer(Club club, Member player, CreateInvitation createInvitation);
     }
 }

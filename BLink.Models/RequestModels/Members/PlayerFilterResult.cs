@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BLink.Models.RequestModels.Members
+﻿namespace BLink.Models.RequestModels.Members
 {
     public class PlayerFilterResult
     {
+        public int Id { get; set; }
+
         public string FirstName { get; set; }
 
         public string LastName { get; set; }

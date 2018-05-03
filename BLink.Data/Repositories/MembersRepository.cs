@@ -42,6 +42,11 @@ namespace BLink.Data.Repositories
             return _dbContext.Members;
         }
 
+        public Task<Member> GetPlayerById(int playerId)
+        {
+            return _dbContext.Members.FindAsync(playerId);
+        }
+
         public IEnumerable<PlayerFilterResult> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria)
         {
             IdentityRole playerRole = _dbContext
@@ -66,6 +71,7 @@ namespace BLink.Data.Repositories
 
             return players.Select(p => new PlayerFilterResult
             {
+                Id = p.Id,
                 FirstName = p.FirstName,
                 Height = p.Height,
                 LastName = p.LastName,

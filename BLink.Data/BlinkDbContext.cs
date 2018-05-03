@@ -47,5 +47,7 @@ namespace BLink.Data
         public DbSet<Position> Positions { get; set; }
 
         public DbSet<MemberPositions> MemberPositions { get; set; }
+
+        public DbSet<Invitation> Invitations { get; set; }
     }
 }

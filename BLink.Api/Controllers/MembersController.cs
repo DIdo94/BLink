@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using BLink.Models;
 using BLink.Models.RequestModels.Members;
 using System.Collections.Generic;
+using BLink.Models.RequestModels.Invitations;
+using BLink.Models.Enums;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -42,6 +44,41 @@ namespace BLink.Api.Controllers
         {
             IEnumerable<PlayerFilterResult> players = _membersService.GetPlayers(filterCriteria);
             return Json(players);
+        }
+
+        // TODO With memberId
+        [HttpGet("{email}/invitations")]
+        public IActionResult GetMemberInvitations([FromRoute] string email)
+        {
+            IEnumerable<InvitationResponse> invitationResponses = _membersService.GetMemberInvitations(email);
+            return Json(invitationResponses);
+        }
+
+        // TODO With memberId
+        [HttpPost("{email}/invitations/{invitationId}/respond")]
+        public async Task<IActionResult> RespondInvitationAsync(
+            [FromRoute] string email, 
+            [FromRoute] int invitationId,
+            [FromBody] RespondInvitationRequest respondInvitationRequest)
+        {
+            if (respondInvitationRequest.InvitationStatus != InvitationStatus.NotReplied)
+            {
+                // TODO check if is a logged user`s invitation
+                var member = await _membersService.GetMemberByEmail(email);
+                if (member == null)
+                {
+                    return BadRequest();
+                }
+
+                await _membersService.RespondInvitation(
+                    invitationId, 
+                    respondInvitationRequest.InvitationStatus, 
+                    member);
+                await _membersService.SaveChangesAsync();
+                return Ok();
+            }
+
+            return BadRequest();
         }
     }
 }

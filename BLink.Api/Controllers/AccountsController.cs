@@ -87,7 +87,7 @@ namespace BLink.Api.Controllers
                 if (signInResult.Succeeded)
                 {
                     var user = await _userManager.FindByEmailAsync(loginUser.Email);
-                    return new JsonResult(GetLoginCredentials(user));
+                    return new JsonResult(await GetLoginCredentials(user));
                 }
 
                 return BadRequest();
@@ -96,16 +96,14 @@ namespace BLink.Api.Controllers
             return BadRequest();
         }
 
-        private Dictionary<string, object> GetLoginCredentials(ApplicationUser user)
+        private async Task<Dictionary<string, object>> GetLoginCredentials(ApplicationUser user)
         {
+            var roles = await _userManager.GetRolesAsync(user);
             return new Dictionary<string, object>
                     {
                         {"access_token", GetAccessToken(user.Email) },
                         { "id", GetIdToken(user)},
-                        { "roles", string.Join(", ", _roleManager
-                            .Roles
-                            .Where(r => user.Roles.Any(ur => ur.RoleId == r.Id ))
-                            .Select(r => r.Name))
+                        { "roles", string.Join(", ", roles)
                         }
                     };
         }

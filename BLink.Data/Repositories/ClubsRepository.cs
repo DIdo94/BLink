@@ -22,6 +22,11 @@ namespace BLink.Data.Repositories
             return _dbContext.Clubs.AddAsync(club);
         }
 
+        public Task<Club> GetClubById(int clubId)
+        {
+            return _dbContext.Clubs.FindAsync(clubId);
+        }
+
         public IEnumerable<Club> GetClubs()
         {
             return _dbContext.Clubs;

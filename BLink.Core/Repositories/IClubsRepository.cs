@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using BLink.Models.RequestModels.Members;
 
 namespace BLink.Core.Repositories
 {
@@ -14,6 +13,8 @@ namespace BLink.Core.Repositories
         IEnumerable<Club> GetClubs(Expression<Func<Club, bool>> predicate, string includeProperties = null);
 
         Task CreateClub(Club club);
+
+        Task<Club> GetClubById(int clubId);
 
         Task SaveChangesAsync();
     }
