@@ -103,8 +103,8 @@ namespace BLink.Api.Controllers
                     {
                         {"access_token", GetAccessToken(user.Email) },
                         { "id", GetIdToken(user)},
-                        { "roles", string.Join(", ", roles)
-                        }
+                        { "roles", string.Join(", ", roles) },
+                        { "memberId", user.MemberId }
                     };
         }
 

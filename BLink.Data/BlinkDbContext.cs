@@ -20,6 +20,7 @@ namespace BLink.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
             builder.Entity<MemberPositions>()
                 .HasKey(mp => new { mp.MemberId, mp.PostitionId });
             builder.Entity<MemberPositions>()
@@ -30,6 +31,17 @@ namespace BLink.Data
                 .HasOne(mp => mp.Position)
                 .WithMany(p => p.MemberPositions)
                 .HasForeignKey(mp => mp.PostitionId);
+
+            builder.Entity<ClubEventMember>()
+                .HasKey(cem => new { cem.ClubEventId, cem.MemberId });
+            builder.Entity<ClubEventMember>()
+                .HasOne(cem => cem.Member)
+                .WithMany(cem => cem.ClubEvents)
+                .HasForeignKey(cem => cem.MemberId);
+            builder.Entity<ClubEventMember>()
+                .HasOne(cem => cem.ClubEvent)
+                .WithMany(cem => cem.InvitedMembers)
+                .HasForeignKey(cem => cem.ClubEventId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -49,5 +61,7 @@ namespace BLink.Data
         public DbSet<MemberPositions> MemberPositions { get; set; }
 
         public DbSet<Invitation> Invitations { get; set; }
+
+        public DbSet<ClubEvent> ClubEvents { get; set; }
     }
 }

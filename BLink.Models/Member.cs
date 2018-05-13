@@ -30,5 +30,7 @@ namespace BLink.Models
         public virtual Club Club { get; set; }
 
         public virtual ICollection<MemberPositions> MemberPositions { get; set; }
+
+        public ICollection<ClubEventMember> ClubEvents { get; set; }
     }
 }

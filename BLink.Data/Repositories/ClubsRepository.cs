@@ -24,7 +24,7 @@ namespace BLink.Data.Repositories
 
         public Task<Club> GetClubById(int clubId)
         {
-            return _dbContext.Clubs.FindAsync(clubId);
+            return _dbContext.Clubs.Include(c => c.Members).FirstOrDefaultAsync(c => c.Id == clubId);
         }
 
         public IEnumerable<Club> GetClubs()
