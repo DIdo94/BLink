@@ -14,5 +14,7 @@ namespace BLink.Models.RequestModels.ClubEvents
         public string Description { get; set; }
 
         public DateTime StartTime { get; set; }
+
+        public ClubEventCoordinates Coordinates { get; set; }
     }
 }

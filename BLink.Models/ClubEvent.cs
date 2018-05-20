@@ -25,6 +25,8 @@ namespace BLink.Models
 
         public DateTime StartTime { get; set; }
 
-        //public string Location { get; set; } TODO 
+        public double Longtitude { get; set; }
+
+        public double Latitude { get; set; }
     }
 }

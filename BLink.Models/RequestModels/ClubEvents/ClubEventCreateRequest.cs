@@ -1,7 +1,5 @@
 ﻿using BLink.Models.Enums;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BLink.Models.RequestModels.ClubEvents
 {
@@ -20,5 +18,7 @@ namespace BLink.Models.RequestModels.ClubEvents
         public DateTime StartTime { get; set; }
 
         public PlayerStatus IncludePlayerStatuses { get; set; }
+
+        public ClubEventCoordinates Coordinates { get; set; }
     }
 }

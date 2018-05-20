@@ -36,6 +36,8 @@ namespace BLink.Services
                 Description = clubEventCreateRequest.Description,
                 EventType = clubEventCreateRequest.EventType,
                 StartTime = clubEventCreateRequest.StartTime,
+                Longtitude = clubEventCreateRequest.Coordinates.Longtitute,
+                Latitude = clubEventCreateRequest.Coordinates.Latitude
             };
 
             if (clubEventCreateRequest.IncludePlayerStatuses == PlayerStatus.All)
@@ -60,7 +62,7 @@ namespace BLink.Services
         public IEnumerable<ClubEventFilterResult> GetClubEvents(ClubEventFilterRequest clubEventFilterRequest)
         {
             IEnumerable<ClubEvent> clubEvents = _clubEventsRepository.GetClubEvents(ce =>
-                ce.InvitedMembers.Any(im => 
+                ce.InvitedMembers.Any(im =>
                     im.MemberId == clubEventFilterRequest.MemberId &&
                     ce.Club.Id == clubEventFilterRequest.ClubId));
 
@@ -75,7 +77,12 @@ namespace BLink.Services
                 Title = ce.Title,
                 Description = ce.Description,
                 EventType = ce.EventType,
-                StartTime = ce.StartTime
+                StartTime = ce.StartTime,
+                Coordinates = new ClubEventCoordinates
+                {
+                    Latitude = ce.Latitude,
+                    Longtitute = ce.Longtitude
+                }
             });
         }
 
