@@ -9,5 +9,9 @@ namespace BLink.Core.Constants
         public static string BlinkConnectionKey = "BlinkDbConnection";
 
         public static string ApiUrl = "http://localhost:5000";
+
+        public static string DataFilesPath = "D://Files";
+
+        public static string MainPhotoFormat = "main_photo.png";
     }
 }

@@ -7,12 +7,14 @@ using BLink.Models.RequestModels.Members;
 using System.Collections.Generic;
 using BLink.Models.RequestModels.Invitations;
 using BLink.Models.Enums;
+using System.IO;
+using BLink.Core.Constants;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BLink.Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     public class MembersController : Controller
     {
@@ -79,6 +81,53 @@ namespace BLink.Api.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpGet("{email}/mainPhoto")]
+        public async Task<IActionResult> GetMemberMainPhoto([FromRoute] string email)
+        {
+            
+            if (email == null)
+            {
+                return BadRequest();
+            }
+
+            var member = await _membersService.GetMemberByEmail(email);
+            if (member == null)
+            {
+                return BadRequest();
+            }
+
+            var path = Path.Combine(
+                           AppConstants.DataFilesPath,
+                           member.PhotoPath);
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+
+            memory.Position = 0;
+            return File(memory, GetContentType(path), Path.GetFileName(path));
+        }
+
+        private string GetContentType(string path)
+        {
+            var types = GetMimeTypes();
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return types[ext];
+        }
+
+        private Dictionary<string, string> GetMimeTypes()
+        {
+            return new Dictionary<string, string>
+            {
+                {".png", "image/png"},
+                {".jpg", "image/jpeg"},
+                {".jpeg", "image/jpeg"},
+                {".gif", "image/gif"},
+            };
         }
     }
 }

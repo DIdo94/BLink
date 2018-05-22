@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,10 +41,31 @@ namespace BLink.Api.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] CreateUserViewModel userViewModel)
+        public async Task<IActionResult> RegisterAsync([FromForm] CreateUserViewModel userViewModel)
         {
             if (ModelState.IsValid)
             {
+                var dbUser = await _userManager.FindByEmailAsync(userViewModel.Email);
+                if (dbUser != null)
+                {
+                    return Error("Имейлът е зает");
+                } 
+
+                var path = Path.Combine(
+                    AppConstants.DataFilesPath,
+                    userViewModel.Email,
+                    userViewModel.UserImage.FileName);
+                var directoryPath = Path.GetDirectoryName(path);
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await userViewModel.UserImage.CopyToAsync(stream);
+                }
+
                 ApplicationUser user = new ApplicationUser
                 {
                     UserName = userViewModel.Email,
@@ -53,9 +75,22 @@ namespace BLink.Api.Controllers
                         FirstName = userViewModel.FirstName,
                         LastName = userViewModel.LastName,
                         Weight = userViewModel.Weight,
-                        Height = userViewModel.Height
-                    }
+                        Height = userViewModel.Height,
+                        PhotoPath = path,
+                    },
                 };
+
+                if (userViewModel.PreferedPosition.HasValue)
+                {
+                    user.Member.MemberPositions.Add(new MemberPositions
+                    {
+                        Member = user.Member,
+                        Position = new Position
+                        {
+                            Name = userViewModel.PreferedPosition.Value.ToString()
+                        }
+                    });
+                }
 
                 IdentityResult result = await _userManager.CreateAsync(user, userViewModel.Password);
                 if (result.Succeeded)
@@ -68,14 +103,16 @@ namespace BLink.Api.Controllers
                     await _userManager.AddToRoleAsync(user, userViewModel.Role.ToString());
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    return new JsonResult(GetLoginCredentials(user));
+                    return new JsonResult(await GetLoginCredentials(user));
                 }
 
                 return Errors(result);
 
             }
 
-            return Error("Unexpected error");
+            var errors = ModelState.Values.Where(v => v.Errors.Any()).SelectMany(v => v.Errors.Select(e => e.ErrorMessage));
+            var message = string.Join(Environment.NewLine, errors);
+            return Error(message);
         }
 
         [HttpPost("Login")]
@@ -152,9 +189,8 @@ namespace BLink.Api.Controllers
 
         private JsonResult Errors(IdentityResult result)
         {
-            var items = result.Errors
-                .Select(x => x.Description)
-                .ToArray();
+            var items = string.Join(Environment.NewLine, result.Errors
+                .Select(x => x.Description));
             return new JsonResult(items) { StatusCode = 400 };
         }
 
