@@ -26,5 +26,9 @@ namespace BLink.Core.Services
         IEnumerable<InvitationResponse>  GetMemberInvitations(string email);
 
         Task RespondInvitation(int invitationId, InvitationStatus invitationStatus, Member member);
+
+        Task<bool> EditMemberDetails(string email, EditMemberDetails editMemberDetails);
+
+        Position GetPositionByName(string name);
     }
 }

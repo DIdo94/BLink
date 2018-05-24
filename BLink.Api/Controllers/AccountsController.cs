@@ -82,14 +82,23 @@ namespace BLink.Api.Controllers
 
                 if (userViewModel.PreferedPosition.HasValue)
                 {
-                    user.Member.MemberPositions.Add(new MemberPositions
+                    string positionName = userViewModel.PreferedPosition.Value.ToString();
+                    Position position = _membersService.GetPositionByName(positionName);
+                    if (position == null)
+                    {
+                        position = new Position
+                        {
+                            Name = positionName
+                        };
+                    }
+
+                    MemberPositions memberPosition = new MemberPositions
                     {
                         Member = user.Member,
-                        Position = new Position
-                        {
-                            Name = userViewModel.PreferedPosition.Value.ToString()
-                        }
-                    });
+                        Position = position
+                    };
+
+                    user.Member.MemberPositions.Add(memberPosition);
                 }
 
                 IdentityResult result = await _userManager.CreateAsync(user, userViewModel.Password);

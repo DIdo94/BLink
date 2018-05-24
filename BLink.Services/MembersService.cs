@@ -1,10 +1,13 @@
-﻿using BLink.Core.Repositories;
+﻿using BLink.Core.Constants;
+using BLink.Core.Repositories;
 using BLink.Core.Services;
 using BLink.Models;
 using BLink.Models.Enums;
 using BLink.Models.RequestModels.Invitations;
 using BLink.Models.RequestModels.Members;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -51,7 +54,7 @@ namespace BLink.Services
         public async Task<MemberDetails> GetMemberDetailsByEmail(string email)
         {
             Member member = await GetMemberByEmail(email);
-            return new MemberDetails
+            var memberDetails = new MemberDetails
             {
                 Id = member.Id,
                 FirstName = member.FirstName,
@@ -60,6 +63,16 @@ namespace BLink.Services
                 PhotoPath = member.PhotoPath,
                 Weight = member.Weight
             };
+
+            if (member.MemberPositions.Any())
+            {
+                Position position = _membersRepository
+                    .GetPositionById(member.MemberPositions.First().PostitionId);
+                memberDetails.PreferedPosition = 
+                    (PlayerPosition?)Enum.Parse(typeof(PlayerPosition), position.Name, true);
+            }
+
+            return memberDetails;
         }
 
         public IEnumerable<InvitationResponse> GetMemberInvitations(string email)
@@ -99,6 +112,56 @@ namespace BLink.Services
         public Task SaveChangesAsync()
         {
             return _membersRepository.SaveChangesAsync();
+        }
+
+        public async Task<bool> EditMemberDetails(string email, EditMemberDetails editMemberDetails)
+        {
+            var member = await GetMemberByEmail(email);
+            if (member == null)
+            {
+                return false;
+            }
+
+            var path = Path.Combine(
+                     AppConstants.DataFilesPath,
+                     email,
+                     editMemberDetails.UserImage.FileName);
+            var directoryPath = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await editMemberDetails.UserImage.CopyToAsync(stream);
+            }
+
+            member.FirstName = editMemberDetails.FirstName;
+            member.LastName = editMemberDetails.LastName;
+            member.MemberPositions = new List<MemberPositions>();
+            if (editMemberDetails.PreferedPosition.HasValue)
+            {
+                member.MemberPositions.Add(new MemberPositions()
+                {
+                    Position = new Position
+                    {
+                        Name = editMemberDetails.PreferedPosition.Value.ToString()
+                    }
+                });
+            }
+
+            member.Weight = editMemberDetails.Weight;
+            member.Height = editMemberDetails.Height;
+            member.PhotoPath = path;
+
+            _membersRepository.EditMember(member);
+            return true;
+        }
+
+        public Position GetPositionByName(string name)
+        {
+            return _membersRepository.GetPositionByName(name);
         }
     }
 }

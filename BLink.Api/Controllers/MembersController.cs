@@ -86,7 +86,6 @@ namespace BLink.Api.Controllers
         [HttpGet("{email}/mainPhoto")]
         public async Task<IActionResult> GetMemberMainPhoto([FromRoute] string email)
         {
-            
             if (email == null)
             {
                 return BadRequest();
@@ -110,6 +109,19 @@ namespace BLink.Api.Controllers
 
             memory.Position = 0;
             return File(memory, GetContentType(path), Path.GetFileName(path));
+        }
+
+        [HttpPost("{email}")]
+        public async Task<IActionResult> EditMemberDetails([FromRoute] string email, [FromForm] EditMemberDetails editMemberDetails)
+        {
+            bool isSuccess = await _membersService.EditMemberDetails(email, editMemberDetails);
+            if (isSuccess)
+            {
+                await _membersService.SaveChangesAsync();
+                return Ok();
+            }
+
+            return BadRequest();
         }
 
         private string GetContentType(string path)

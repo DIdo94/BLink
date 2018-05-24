@@ -18,5 +18,11 @@ namespace BLink.Core.Repositories
         IEnumerable<PlayerFilterResult> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria);
 
         Task<Member> GetPlayerById(int playerId);
+
+        void EditMember(Member member);
+
+        Position GetPositionById(int positionId);
+
+        Position GetPositionByName(string name);
     }
 }

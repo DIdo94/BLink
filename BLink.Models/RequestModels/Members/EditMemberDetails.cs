@@ -1,21 +1,22 @@
 ﻿using BLink.Models.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace BLink.Models.RequestModels.Members
 {
-    public class MemberDetails
+    public class EditMemberDetails
     {
-        public int Id { get; set; }
+        public string Email { get; set; }
 
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
-
-        public string PhotoPath { get; set; }
 
         public double? Weight { get; set; }
 
         public double? Height { get; set; }
 
         public PlayerPosition? PreferedPosition { get; set; }
+
+        public IFormFile UserImage { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace BLink.Data.Repositories
     {
         private readonly BlinkDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
+
         public MembersRepository(BlinkDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             _dbContext = dbContext;
@@ -27,6 +28,11 @@ namespace BLink.Data.Repositories
             return _dbContext.Members.AddAsync(member);
         }
 
+        public void EditMember(Member member)
+        {
+            _dbContext.Members.Update(member);
+        }
+
         public async Task<Member> GetMemberByEmail(string email)
         {
             var membes = _dbContext
@@ -34,7 +40,17 @@ namespace BLink.Data.Repositories
             return await Task.FromResult(_dbContext
                 .Members
                 .Include(m => m.IdentityUser)
+                .Include(m => m.MemberPositions)
                 .FirstOrDefault(m => m.IdentityUser.Email == email));
+        }
+
+        public Position GetPositionById(int positionId)
+        {
+           return _dbContext
+                .MemberPositions
+                .Include(mp => mp.Position)
+                .FirstOrDefault(mp => mp.PostitionId == positionId)
+                ?.Position;
         }
 
         public IEnumerable<Member> GetMembers()
@@ -82,6 +98,15 @@ namespace BLink.Data.Repositories
         public Task SaveChangesAsync()
         {
             return _dbContext.SaveChangesAsync();
+        }
+
+        public Position GetPositionByName(string name)
+        {
+            return _dbContext
+                .MemberPositions
+                .Include(mp => mp.Position)
+                .FirstOrDefault(mp => mp.Position.Name == name)
+                ?.Position;
         }
     }
 }
