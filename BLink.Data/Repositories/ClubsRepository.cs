@@ -27,6 +27,11 @@ namespace BLink.Data.Repositories
             return _dbContext.Clubs.Include(c => c.Members).FirstOrDefaultAsync(c => c.Id == clubId);
         }
 
+        public Club GetClubByName(string name)
+        {
+            return _dbContext.Clubs.FirstOrDefault(c => string.Compare(c.Name, name, true) == 0);
+        }
+
         public IEnumerable<Club> GetClubs()
         {
             return _dbContext.Clubs;
@@ -45,6 +50,11 @@ namespace BLink.Data.Repositories
         public Task SaveChangesAsync()
         {
             return _dbContext.SaveChangesAsync();
+        }
+
+        public void UpdateClub(Club club)
+        {
+            _dbContext.Clubs.Update(club);
         }
     }
 }

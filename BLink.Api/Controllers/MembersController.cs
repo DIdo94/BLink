@@ -14,7 +14,7 @@ using BLink.Core.Constants;
 
 namespace BLink.Api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     public class MembersController : Controller
     {

@@ -16,6 +16,10 @@ namespace BLink.Core.Repositories
 
         Task<Club> GetClubById(int clubId);
 
+        Club GetClubByName(string name);
+
+        void UpdateClub(Club club);
+
         Task SaveChangesAsync();
     }
 }

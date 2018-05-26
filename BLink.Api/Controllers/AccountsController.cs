@@ -27,6 +27,7 @@ namespace BLink.Api.Controllers
         private readonly JwtSettings _jwtSettings;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMembersService _membersService;
+
         public AccountsController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,

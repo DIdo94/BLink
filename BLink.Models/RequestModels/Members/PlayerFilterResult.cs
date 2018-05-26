@@ -1,4 +1,6 @@
-﻿namespace BLink.Models.RequestModels.Members
+﻿using BLink.Models.Enums;
+
+namespace BLink.Models.RequestModels.Members
 {
     public class PlayerFilterResult
     {
@@ -11,5 +13,11 @@
         public double? Weight { get; set; }
 
         public double? Height { get; set; }
+
+        public int PositionId { get; set; }
+
+        public PlayerPosition? PreferedPosition { get; set; }
+
+        public int? ClubId { get; set; }
     }
 }

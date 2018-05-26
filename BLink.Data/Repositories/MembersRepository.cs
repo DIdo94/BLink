@@ -46,11 +46,11 @@ namespace BLink.Data.Repositories
 
         public Position GetPositionById(int positionId)
         {
-           return _dbContext
-                .MemberPositions
-                .Include(mp => mp.Position)
-                .FirstOrDefault(mp => mp.PostitionId == positionId)
-                ?.Position;
+            return _dbContext
+                 .MemberPositions
+                 .Include(mp => mp.Position)
+                 .FirstOrDefault(mp => mp.PostitionId == positionId)
+                 ?.Position;
         }
 
         public IEnumerable<Member> GetMembers()
@@ -60,7 +60,16 @@ namespace BLink.Data.Repositories
 
         public Task<Member> GetPlayerById(int playerId)
         {
-            return _dbContext.Members.FindAsync(playerId);
+            IdentityRole playerRole = _dbContext
+               .Roles
+               .FirstOrDefault(r => r.Name == Role.Player.ToString());
+            return _dbContext
+                .Members
+                .Include(m => m.IdentityUser)
+                .ThenInclude(u => u.Roles)
+                .FirstOrDefaultAsync(m => 
+                    m.IdentityUser.Roles.Any(r => r.RoleId == playerRole.Id) && 
+                    m.Id == playerId);
         }
 
         public IEnumerable<PlayerFilterResult> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria)
@@ -71,27 +80,45 @@ namespace BLink.Data.Repositories
             IQueryable<Member> players = _dbContext
                 .Members
                 .Include(m => m.IdentityUser)
-                .Include(m => m.IdentityUser.Roles);
+                .ThenInclude(u => u.Roles)
+                .Include(m => m.MemberPositions);
             players = players.Where(m => m.IdentityUser.Roles.Any(r => r.RoleId == playerRole.Id));
-
             if (filterCriteria.ClubId.HasValue)
             {
                 players = players.Include(p => p.Club).Where(p => p.Club.Id == filterCriteria.ClubId.Value);
             }
+            else
+            {
+                players = players.Include(p => p.Club).Where(p => p.Club == null);
+            }
 
-            if (!string.IsNullOrWhiteSpace(filterCriteria.FirstName))
+            if (!string.IsNullOrWhiteSpace(filterCriteria.Name))
             {
                 players = players.Where(p =>
-                    p.FirstName.StartsWith(filterCriteria.FirstName, StringComparison.OrdinalIgnoreCase));
+                    p.FirstName.StartsWith(filterCriteria.Name, StringComparison.OrdinalIgnoreCase) ||
+                    p.LastName.StartsWith(filterCriteria.Name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            players = players.Where(p =>
+                p.Height >= filterCriteria.MinHeight &&
+                p.Height <= filterCriteria.MaxHeight &&
+                p.Weight >= filterCriteria.MinWeight &&
+                p.Weight <= filterCriteria.MaxWeight);
+
+            if (filterCriteria.Position != 0)
+            {
+                players = players.Where(p => p.MemberPositions.Any(mp => mp.Position.Name == filterCriteria.Position.ToString()));
             }
 
             return players.Select(p => new PlayerFilterResult
             {
                 Id = p.Id,
+                ClubId = filterCriteria.ClubId,
                 FirstName = p.FirstName,
                 Height = p.Height,
                 LastName = p.LastName,
-                Weight = p.Weight
+                Weight = p.Weight,
+                PositionId = p.MemberPositions.First().PostitionId
             });
         }
 

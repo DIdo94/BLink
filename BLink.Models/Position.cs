@@ -4,6 +4,11 @@ namespace BLink.Models
 {
     public class Position
     {
+        public Position()
+        {
+            MemberPositions = new List<MemberPositions>();
+        }
+
         public int Id { get; set; }
 
         public string Name { get; set; }

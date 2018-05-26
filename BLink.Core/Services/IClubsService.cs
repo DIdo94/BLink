@@ -18,5 +18,11 @@ namespace BLink.Core.Services
         Club GetMemberClub(string email);
 
         Task InvitePlayer(Club club, Member player, CreateInvitation createInvitation);
+
+        Club GetClubByName(string name);
+
+        void UpdateClub(Club club);
+
+        Task<bool> KickPlayer(int clubId, int playerId);
     }
 }

@@ -40,6 +40,11 @@ namespace BLink.Services
             return _clubsRepository.GetClubById(clubId);
         }
 
+        public Club GetClubByName(string name)
+        {
+            return _clubsRepository.GetClubByName(name);
+        }
+
         public Club GetMemberClub(string email)
         {
             return _clubsRepository
@@ -60,9 +65,38 @@ namespace BLink.Services
             return _invitationsRepository.AddInvitationAsync(invitation);
         }
 
+        public async Task<bool> KickPlayer(int clubId, int playerId)
+        {
+            Club club = await GetClubById(clubId);
+           
+            if (club == null)
+            {
+                return false;
+            }
+
+            Member player = await _membersRepository.GetPlayerById(playerId);
+            if (player == null)
+            {
+                return false;
+            }
+
+            bool isSuccess = true;
+            if (club.Members.Contains(player))
+            {
+                isSuccess = club.Members.Remove(player);
+            }
+
+            return isSuccess;
+        }
+
         public Task SaveChangesAsync()
         {
             return _clubsRepository.SaveChangesAsync();
+        }
+
+        public void UpdateClub(Club club)
+        {
+            _clubsRepository.UpdateClub(club);
         }
     }
 }

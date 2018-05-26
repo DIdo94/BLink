@@ -68,7 +68,7 @@ namespace BLink.Services
             {
                 Position position = _membersRepository
                     .GetPositionById(member.MemberPositions.First().PostitionId);
-                memberDetails.PreferedPosition = 
+                memberDetails.PreferedPosition =
                     (PlayerPosition?)Enum.Parse(typeof(PlayerPosition), position.Name, true);
             }
 
@@ -87,7 +87,7 @@ namespace BLink.Services
             var invitations = _invitationsRepository.GetInvitations(i => i.InvitedPlayer.IdentityUser.Email == email);
             if (invitations.Any())
             {
-                invitationResponses =  invitations.Select(i => new InvitationResponse
+                invitationResponses = invitations.Select(i => new InvitationResponse
                 {
                     ClubName = i.InvitingClub.Name,
                     Id = i.Id,
@@ -105,7 +105,18 @@ namespace BLink.Services
 
         public IEnumerable<PlayerFilterResult> GetPlayers(PlayerFilterCriteria filterCriteria)
         {
-            var players = _membersRepository.GetPlayersByCriteria(filterCriteria);
+            var players = _membersRepository.GetPlayersByCriteria(filterCriteria).ToList();
+            if (players.Any())
+            {
+                foreach (var player in players)
+                {
+                    var positionName = _membersRepository.GetPositionById(player.PositionId).Name;
+                    var position = (PlayerPosition?)Enum.Parse(typeof(PlayerPosition),
+                       positionName, true);
+                    player.PreferedPosition = position;
+                }
+            }
+           
             return players;
         }
 

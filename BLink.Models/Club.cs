@@ -12,6 +12,8 @@ namespace BLink.Models
 
         public string Name { get; set; }
 
+        public string PhotoPath { get; set; }
+
         public virtual Country Country { get; set; }
 
         public virtual ICollection<Member> Members { get; set; }

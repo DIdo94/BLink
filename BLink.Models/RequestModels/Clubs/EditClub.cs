@@ -2,12 +2,12 @@
 
 namespace BLink.Models.RequestModels.Clubs
 {
-    public class CreateClubModel
+    public class EditClub
     {
-        public string Email { get; set; }
-
         public string Name { get; set; }
 
         public IFormFile ClubImage { get; set; }
+
+        public string Email { get; set; }
     }
 }
