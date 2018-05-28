@@ -19,16 +19,18 @@ namespace BLink.Core.Services
 
         Task SaveChangesAsync();
 
-        IEnumerable<PlayerFilterResult> GetPlayers(PlayerFilterCriteria filterCriteria);
+        Task<IEnumerable<PlayerFilterResult>> GetPlayers(PlayerFilterCriteria filterCriteria);
 
         Task<Member> GetPlayerById(int playerId);
 
-        IEnumerable<InvitationResponse>  GetMemberInvitations(string email);
+        Task<IEnumerable<InvitationResponse>> GetMemberInvitations(string email);
 
         Task RespondInvitation(int invitationId, InvitationStatus invitationStatus, Member member);
 
         Task<bool> EditMemberDetails(string email, EditMemberDetails editMemberDetails);
 
         Position GetPositionByName(string name);
+
+        Task<bool> LeaveClub(string email);
     }
 }

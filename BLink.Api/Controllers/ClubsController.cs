@@ -110,10 +110,10 @@ namespace BLink.Api.Controllers
         }
 
         [HttpGet("{clubId}/players")]
-        public IActionResult GetClubPlayers([FromRoute] int clubId, [FromQuery] PlayerFilterCriteria filterCriteria)
+        public async Task<IActionResult> GetClubPlayers([FromRoute] int clubId, [FromQuery] PlayerFilterCriteria filterCriteria)
         {
             filterCriteria.ClubId = clubId;
-            var players = _membersService.GetPlayers(filterCriteria);
+            var players = await _membersService.GetPlayers(filterCriteria);
             return Json(players);
         }
 

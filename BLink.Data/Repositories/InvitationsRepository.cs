@@ -38,7 +38,7 @@ namespace BLink.Data.Repositories
                 .Invitations
                 .Include(i => i.InvitingClub)
                 .Include(i => i.InvitedPlayer)
-                .Include(i => i.InvitedPlayer.IdentityUser)
+                .ThenInclude(i => i.IdentityUser)
                 .Where(predicate);
         }
 

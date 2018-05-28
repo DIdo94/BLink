@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BLink.Models.RequestModels.Members;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
+using System.Linq.Expressions;
 
 namespace BLink.Core.Repositories
 {
@@ -15,7 +18,7 @@ namespace BLink.Core.Repositories
 
         Task SaveChangesAsync();
 
-        IEnumerable<PlayerFilterResult> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria);
+        Task<IEnumerable<PlayerFilterResult>> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria);
 
         Task<Member> GetPlayerById(int playerId);
 
@@ -24,5 +27,7 @@ namespace BLink.Core.Repositories
         Position GetPositionById(int positionId);
 
         Position GetPositionByName(string name);
+
+        Task<IdentityRole> GetMemberRole(Expression<Func<IdentityRole, bool>> predicate);
     }
 }

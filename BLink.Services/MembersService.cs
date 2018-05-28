@@ -5,6 +5,7 @@ using BLink.Models;
 using BLink.Models.Enums;
 using BLink.Models.RequestModels.Invitations;
 using BLink.Models.RequestModels.Members;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -75,21 +76,39 @@ namespace BLink.Services
             return memberDetails;
         }
 
-        public IEnumerable<InvitationResponse> GetMemberInvitations(string email)
+        public async Task<IEnumerable<InvitationResponse>> GetMemberInvitations(string email)
         {
             var invitationResponses = new List<InvitationResponse>();
-            var member = GetMemberByEmail(email);
+            var member = await GetMemberByEmail(email);
             if (member == null)
             {
                 return invitationResponses;
             }
 
-            var invitations = _invitationsRepository.GetInvitations(i => i.InvitedPlayer.IdentityUser.Email == email);
+            IdentityRole coachRole = await _membersRepository.GetMemberRole(m => m.Name == Role.Coach.ToString());
+            IEnumerable<Invitation> invitations = Enumerable.Empty<Invitation>();
+            if (!member.IdentityUser.Roles.Any(r => coachRole.Id == r.RoleId) && member.Club != null)
+            {
+                return invitationResponses;
+            }
+
+            if (member.IdentityUser.Roles.Any(r => coachRole.Id == r.RoleId))
+            {
+                invitations = _invitationsRepository.GetInvitations(i =>
+                    i.InvitingClub.Id == member.Club.Id && i.Status == InvitationStatus.NotReplied);
+            }
+            else
+            {
+                invitations = _invitationsRepository.GetInvitations(i =>
+                i.InvitedPlayer.IdentityUser.Email == email && i.Status == InvitationStatus.NotReplied);
+            }
+
             if (invitations.Any())
             {
                 invitationResponses = invitations.Select(i => new InvitationResponse
                 {
                     ClubName = i.InvitingClub.Name,
+                    PlayerName = $"{i.InvitedPlayer.FirstName} {i.InvitedPlayer.LastName}",
                     Id = i.Id,
                     Description = i.Description
                 }).ToList();
@@ -103,9 +122,9 @@ namespace BLink.Services
             return _membersRepository.GetPlayerById(playerId);
         }
 
-        public IEnumerable<PlayerFilterResult> GetPlayers(PlayerFilterCriteria filterCriteria)
+        public async Task<IEnumerable<PlayerFilterResult>> GetPlayers(PlayerFilterCriteria filterCriteria)
         {
-            var players = _membersRepository.GetPlayersByCriteria(filterCriteria).ToList();
+            var players = (await _membersRepository.GetPlayersByCriteria(filterCriteria)).ToList();
             if (players.Any())
             {
                 foreach (var player in players)
@@ -116,7 +135,7 @@ namespace BLink.Services
                     player.PreferedPosition = position;
                 }
             }
-           
+
             return players;
         }
 
@@ -173,6 +192,20 @@ namespace BLink.Services
         public Position GetPositionByName(string name)
         {
             return _membersRepository.GetPositionByName(name);
+        }
+
+        public async Task<bool> LeaveClub(string email)
+        {
+            var member = await GetMemberByEmail(email);
+            if (member == null)
+            {
+                return false;
+            }
+
+            member.Club = null;
+            _membersRepository.EditMember(member);
+
+            return true;
         }
     }
 }

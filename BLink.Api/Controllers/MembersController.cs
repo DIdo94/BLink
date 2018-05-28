@@ -42,17 +42,17 @@ namespace BLink.Api.Controllers
         }
 
         [HttpGet("~/api/players")]
-        public IActionResult GetPlayers([FromQuery] PlayerFilterCriteria filterCriteria)
+        public async Task<IActionResult> GetPlayers([FromQuery] PlayerFilterCriteria filterCriteria)
         {
-            IEnumerable<PlayerFilterResult> players = _membersService.GetPlayers(filterCriteria);
+            IEnumerable<PlayerFilterResult> players = await _membersService.GetPlayers(filterCriteria);
             return Json(players);
         }
 
         // TODO With memberId
         [HttpGet("{email}/invitations")]
-        public IActionResult GetMemberInvitations([FromRoute] string email)
+        public async Task<IActionResult> GetMemberInvitations([FromRoute] string email)
         {
-            IEnumerable<InvitationResponse> invitationResponses = _membersService.GetMemberInvitations(email);
+            IEnumerable<InvitationResponse> invitationResponses = await _membersService.GetMemberInvitations(email);
             return Json(invitationResponses);
         }
 
@@ -115,6 +115,19 @@ namespace BLink.Api.Controllers
         public async Task<IActionResult> EditMemberDetails([FromRoute] string email, [FromForm] EditMemberDetails editMemberDetails)
         {
             bool isSuccess = await _membersService.EditMemberDetails(email, editMemberDetails);
+            if (isSuccess)
+            {
+                await _membersService.SaveChangesAsync();
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost("{email}/leaveClub")]
+        public async Task<IActionResult> LeaveClub([FromRoute] string email)
+        {
+            bool isSuccess = await _membersService.LeaveClub(email);
             if (isSuccess)
             {
                 await _membersService.SaveChangesAsync();

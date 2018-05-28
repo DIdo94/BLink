@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace BLink.Data.Repositories
@@ -33,13 +34,15 @@ namespace BLink.Data.Repositories
             _dbContext.Members.Update(member);
         }
 
-        public async Task<Member> GetMemberByEmail(string email)
+        public Task<Member> GetMemberByEmail(string email)
         {
             var membes = _dbContext
                 .Members;
-            return await Task.FromResult(_dbContext
+            return Task.FromResult(_dbContext
                 .Members
+                .Include(m => m.Club)
                 .Include(m => m.IdentityUser)
+                .ThenInclude(m => m.Roles)
                 .Include(m => m.MemberPositions)
                 .FirstOrDefault(m => m.IdentityUser.Email == email));
         }
@@ -72,11 +75,9 @@ namespace BLink.Data.Repositories
                     m.Id == playerId);
         }
 
-        public IEnumerable<PlayerFilterResult> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria)
+        public async Task<IEnumerable<PlayerFilterResult>> GetPlayersByCriteria(PlayerFilterCriteria filterCriteria)
         {
-            IdentityRole playerRole = _dbContext
-                .Roles
-                .FirstOrDefault(r => r.Name == Role.Player.ToString());
+            IdentityRole playerRole = await GetMemberRole(r => r.Name == Role.Player.ToString());
             IQueryable<Member> players = _dbContext
                 .Members
                 .Include(m => m.IdentityUser)
@@ -134,6 +135,11 @@ namespace BLink.Data.Repositories
                 .Include(mp => mp.Position)
                 .FirstOrDefault(mp => mp.Position.Name == name)
                 ?.Position;
+        }
+
+        public Task<IdentityRole> GetMemberRole(Expression<Func<IdentityRole, bool>> predicate)
+        {
+            return _dbContext.Roles.FirstOrDefaultAsync(predicate);
         }
     }
 }
