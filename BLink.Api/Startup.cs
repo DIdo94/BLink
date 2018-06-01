@@ -34,19 +34,12 @@ namespace BLink.Api
             Configuration = builder.Build();
             AppConstants.ConnectionStrings.Add(AppConstants.BlinkConnectionKey, 
                 Configuration.GetConnectionString(AppConstants.BlinkConnectionKey)); // Move to better place
-            // = new Dictionary<string, string>(
-            //    Configuration.GetSection("ConnectionStrings").AsEnumerable().ToDictionary(k => k.Key, v => v.Value));
         }
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            //services.AddIdentity<ApplicationUser, IdentityRole>()
-            //    .AddEntityFrameworkStores<BlinkDbContext>()
-            //    .AddDefaultTokenProviders();
-
             services.Configure<JwtSettings>(Configuration.GetSection("JWTSettings"));
 
             services.AddEntityFramework()
@@ -126,7 +119,6 @@ namespace BLink.Api
                 AutomaticAuthenticate = false,
                 AutomaticChallenge = false
             });
-
 
             app.UseMvc();
         }

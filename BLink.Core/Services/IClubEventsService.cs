@@ -10,6 +10,10 @@ namespace BLink.Core.Services
 
         IEnumerable<ClubEventFilterResult> GetClubEvents(ClubEventFilterRequest clubEventFilterRequest);
 
+        Task<bool> EditEvent(int eventId, ClubEventCreateRequest clubEventCreateRequest);
+
         Task SaveChangesAsync();
+
+        Task<bool> RemoveEvent(int eventId);
     }
 }

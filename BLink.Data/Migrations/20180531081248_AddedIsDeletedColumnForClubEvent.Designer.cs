@@ -9,9 +9,10 @@ using BLink.Models.Enums;
 namespace BLink.Data.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    partial class BlinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180531081248_AddedIsDeletedColumnForClubEvent")]
+    partial class AddedIsDeletedColumnForClubEvent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")

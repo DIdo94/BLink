@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BLink.Models
+﻿namespace BLink.Models
 {
     public class MemberPositions
     {

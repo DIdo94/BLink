@@ -59,12 +59,28 @@ namespace BLink.Services
             _clubEventsRepository.AddEvent(clubEvent);
         }
 
+        public async Task<bool> EditEvent(int eventId, ClubEventCreateRequest clubEventCreateRequest)
+        {
+            var clubEvent = await _clubEventsRepository.GetById(eventId);
+            if (clubEvent == null)
+            {
+                return false;
+            }
+
+            clubEvent.Title = clubEventCreateRequest.Title;
+            clubEvent.Description = clubEventCreateRequest.Description;
+            clubEvent.EventType = clubEventCreateRequest.EventType;
+            clubEvent.Latitude = clubEventCreateRequest.Coordinates.Latitude;
+            clubEvent.Longtitude = clubEventCreateRequest.Coordinates.Longtitute;
+            clubEvent.StartTime = clubEventCreateRequest.StartTime;
+
+            _clubEventsRepository.UpdateEvent(clubEvent);
+            return true;
+        }
+
         public IEnumerable<ClubEventFilterResult> GetClubEvents(ClubEventFilterRequest clubEventFilterRequest)
         {
-            IEnumerable<ClubEvent> clubEvents = _clubEventsRepository.GetClubEvents(ce =>
-                ce.InvitedMembers.Any(im =>
-                    im.MemberId == clubEventFilterRequest.MemberId &&
-                    ce.Club.Id == clubEventFilterRequest.ClubId));
+            IEnumerable<ClubEvent> clubEvents = _clubEventsRepository.GetClubEvents(clubEventFilterRequest);
 
             if (!clubEvents.Any())
             {
@@ -84,6 +100,18 @@ namespace BLink.Services
                     Longtitute = ce.Longtitude
                 }
             });
+        }
+
+        public async Task<bool> RemoveEvent(int eventId)
+        {
+            var clubEvent = await _clubEventsRepository.GetById(eventId);
+            if (clubEvent == null)
+            {
+                return false;
+            }
+
+            _clubEventsRepository.RemoveEvent(clubEvent);
+            return true;
         }
 
         public Task SaveChangesAsync()

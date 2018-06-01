@@ -21,16 +21,45 @@ namespace BLink.Api.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ClubEventFilterResult> GetEvents([FromQuery] ClubEventFilterRequest clubEventFilterRequest)
+        public IActionResult GetEvents([FromQuery] ClubEventFilterRequest clubEventFilterRequest)
         {
-            return _clubEventsService.GetClubEvents(clubEventFilterRequest);
+            return Json(_clubEventsService.GetClubEvents(clubEventFilterRequest));
         }
 
         [HttpPost]
-        public async Task CreateEvent([FromBody] ClubEventCreateRequest clubEventCreateRequest)
+        public async Task<IActionResult> CreateEvent([FromBody] ClubEventCreateRequest clubEventCreateRequest)
         {
             await _clubEventsService.CreateEvent(clubEventCreateRequest);
             await _clubEventsService.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPost("{eventId}")]
+        public async Task<IActionResult> EditEvent([FromRoute] int eventId, [FromBody] ClubEventCreateRequest clubEventCreateRequest)
+        {
+            bool isSuccess = await _clubEventsService.EditEvent(eventId, clubEventCreateRequest);
+            if (isSuccess)
+            {
+                await _clubEventsService.SaveChangesAsync();
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+
+
+        [HttpDelete("{eventId}")]
+        public async Task<IActionResult> RemoveEvent([FromRoute] int eventId)
+        {
+            bool isSuccess = await _clubEventsService.RemoveEvent(eventId);
+            if (isSuccess)
+            {
+                await _clubEventsService.SaveChangesAsync();
+                return Ok();
+            }
+
+            return BadRequest();
         }
     }
 }

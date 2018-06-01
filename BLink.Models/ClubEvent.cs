@@ -28,5 +28,7 @@ namespace BLink.Models
         public double Longtitude { get; set; }
 
         public double Latitude { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }
