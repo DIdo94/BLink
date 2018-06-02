@@ -73,6 +73,7 @@ namespace BLink.Api
             services.AddTransient<IMembersService, MembersService>();
             services.AddTransient<IClubsService, ClubsService>();
             services.AddTransient<IClubEventsService, ClubEventsService>();
+            services.AddTransient<IFileService, FileService>();
 
             services.AddMvc().AddJsonOptions(options =>
             {

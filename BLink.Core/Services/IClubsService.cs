@@ -11,7 +11,7 @@ namespace BLink.Core.Services
 
         Task<Club> GetClubById(int clubId);
 
-        Task CreateClub(Club club);
+        Task CreateClub(CreateClubModel createClubModel);
 
         Task SaveChangesAsync();
 
@@ -21,7 +21,7 @@ namespace BLink.Core.Services
 
         Club GetClubByName(string name);
 
-        void UpdateClub(Club club);
+        Task UpdateClub(Club club, EditClub editClubModel);
 
         Task<bool> KickPlayer(int clubId, int playerId);
     }

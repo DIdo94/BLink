@@ -3,6 +3,7 @@ using BLink.Core.Repositories;
 using BLink.Core.Services;
 using BLink.Models;
 using BLink.Models.Enums;
+using BLink.Models.RequestModels.Accounts;
 using BLink.Models.RequestModels.Invitations;
 using BLink.Models.RequestModels.Members;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -18,10 +19,15 @@ namespace BLink.Services
     {
         private readonly IMembersRepository _membersRepository;
         private readonly IInvitationsRepository _invitationsRepository;
-        public MembersService(IMembersRepository membersRepository, IInvitationsRepository invitationsRepository)
+        private readonly IFileService _fileService;
+        public MembersService(
+            IMembersRepository membersRepository,
+            IInvitationsRepository invitationsRepository,
+            IFileService fileService)
         {
             _membersRepository = membersRepository;
             _invitationsRepository = invitationsRepository;
+            _fileService = fileService;
         }
 
         public async Task RespondInvitation(int invitationId, InvitationStatus invitationStatus, Member member)
@@ -87,7 +93,8 @@ namespace BLink.Services
 
             IdentityRole coachRole = await _membersRepository.GetMemberRole(m => m.Name == Role.Coach.ToString());
             IEnumerable<Invitation> invitations = Enumerable.Empty<Invitation>();
-            if (!member.IdentityUser.Roles.Any(r => coachRole.Id == r.RoleId) && member.Club != null)
+            bool isCoach = member.IdentityUser.Roles.Any(r => coachRole.Id == r.RoleId);
+            if (!isCoach && member.Club != null)
             {
                 return invitationResponses;
             }
@@ -110,6 +117,9 @@ namespace BLink.Services
                     ClubName = i.InvitingClub.Name,
                     PlayerName = $"{i.InvitedPlayer.FirstName} {i.InvitedPlayer.LastName}",
                     Id = i.Id,
+                    Thumbnail = isCoach ? 
+                        File.ReadAllBytes(i.InvitedPlayer.PhotoThumbnailPath) :
+                        File.ReadAllBytes(i.InvitingClub.PhotoThumbnailPath),
                     Description = i.Description
                 }).ToList();
             }
@@ -133,6 +143,9 @@ namespace BLink.Services
                     var position = (PlayerPosition?)Enum.Parse(typeof(PlayerPosition),
                        positionName, true);
                     player.PreferedPosition = position;
+                    byte[] imageArray = File.ReadAllBytes(player.Thumbnail);
+                    string base64ImageRepresentation = Convert.ToBase64String(imageArray);
+                    player.Thumbnail = base64ImageRepresentation;
                 }
             }
 
@@ -152,19 +165,16 @@ namespace BLink.Services
                 return false;
             }
 
-            var path = Path.Combine(
-                     AppConstants.DataFilesPath,
-                     email,
-                     editMemberDetails.UserImage.FileName);
-            var directoryPath = Path.GetDirectoryName(path);
-            if (!Directory.Exists(directoryPath))
+            if (editMemberDetails.UserImage != null)
             {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await editMemberDetails.UserImage.CopyToAsync(stream);
+                var path = Path.Combine(
+                         AppConstants.DataFilesPath,
+                         email,
+                         editMemberDetails.UserImage.FileName);
+                await _fileService.SaveImage(path, editMemberDetails.UserImage);
+                string thumbnailPath = _fileService.CreateThumbnailFromImage(path, editMemberDetails.UserImage.FileName);
+                member.PhotoPath = path;
+                member.PhotoThumbnailPath = thumbnailPath;
             }
 
             member.FirstName = editMemberDetails.FirstName;
@@ -183,7 +193,6 @@ namespace BLink.Services
 
             member.Weight = editMemberDetails.Weight;
             member.Height = editMemberDetails.Height;
-            member.PhotoPath = path;
 
             _membersRepository.EditMember(member);
             return true;
@@ -206,6 +215,53 @@ namespace BLink.Services
             _membersRepository.EditMember(member);
 
             return true;
+        }
+
+        public async Task<ApplicationUser> BuildUser(CreateUserViewModel userViewModel)
+        {
+            var path = Path.Combine(
+                 AppConstants.DataFilesPath,
+                 userViewModel.Email,
+                 userViewModel.UserImage.FileName);
+            await _fileService.SaveImage(path, userViewModel.UserImage);
+            string thumbnailPath = _fileService.CreateThumbnailFromImage(path, userViewModel.UserImage.FileName);
+            ApplicationUser user = new ApplicationUser
+            {
+                UserName = userViewModel.Email,
+                Email = userViewModel.Email,
+                Member = new Member
+                {
+                    FirstName = userViewModel.FirstName,
+                    LastName = userViewModel.LastName,
+                    Weight = userViewModel.Weight,
+                    Height = userViewModel.Height,
+                    PhotoPath = path,
+                    PhotoThumbnailPath = thumbnailPath
+                },
+            };
+
+            if (userViewModel.PreferedPosition.HasValue)
+            {
+                string positionName = userViewModel.PreferedPosition.Value.ToString();
+                Position position = GetPositionByName(positionName);
+                if (position == null)
+                {
+                    position = new Position
+                    {
+                        Name = positionName
+                    };
+                }
+
+                MemberPositions memberPosition = new MemberPositions
+                {
+                    Member = user.Member,
+                    Position = position
+                };
+
+                user.Member.MemberPositions.Add(memberPosition);
+            }
+
+            return user;
         }
     }
 }

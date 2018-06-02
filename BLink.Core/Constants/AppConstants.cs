@@ -13,5 +13,7 @@ namespace BLink.Core.Constants
         public static string DataFilesPath = "D://Files";
 
         public static string MainPhotoFormat = "main_photo.png";
+
+        public static string ThumbnailPrefix = "thumbnail";
     }
 }

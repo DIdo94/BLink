@@ -40,31 +40,7 @@ namespace BLink.Api.Controllers
                 return BadRequest("Името е заето");
             }
 
-            string path = Path.Combine(
-                AppConstants.DataFilesPath,
-                createClubModel.Email,
-                createClubModel.ClubImage.FileName);
-            var directoryPath = Path.GetDirectoryName(path);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await createClubModel.ClubImage.CopyToAsync(stream);
-            }
-
-            club = new Club
-            {
-                Name = createClubModel.Name,
-                PhotoPath = path
-            };
-
-            // var str = User.Identity.Name; TODO work with this
-            Member member = await _membersService.GetMemberByEmail(createClubModel.Email);
-            club.Members.Add(member);
-            await _clubsService.CreateClub(club);
+            await _clubsService.CreateClub(createClubModel);
             await _clubsService.SaveChangesAsync();
 
             return Ok();
@@ -80,30 +56,12 @@ namespace BLink.Api.Controllers
             }
 
             Club clubByName = _clubsService.GetClubByName(editClubModel.Name);
-            if (clubByName != null)
+            if (clubByName != null && clubByName.Id != club.Id)
             {
                 return BadRequest("Името е заето");
             }
-            
-            string path = Path.Combine(
-                AppConstants.DataFilesPath,
-                editClubModel.Email,
-                editClubModel.ClubImage.FileName);
-            var directoryPath = Path.GetDirectoryName(path);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
 
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await editClubModel.ClubImage.CopyToAsync(stream);
-            }
-
-            club.Name = editClubModel.Name;
-            club.PhotoPath = path;
-
-            _clubsService.UpdateClub(club);
+            await _clubsService.UpdateClub(club, editClubModel);
             await _clubsService.SaveChangesAsync();
 
             return Ok();

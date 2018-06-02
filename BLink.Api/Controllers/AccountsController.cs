@@ -50,66 +50,18 @@ namespace BLink.Api.Controllers
                 if (dbUser != null)
                 {
                     return Error("Имейлът е зает");
-                } 
-
-                var path = Path.Combine(
-                    AppConstants.DataFilesPath,
-                    userViewModel.Email,
-                    userViewModel.UserImage.FileName);
-                var directoryPath = Path.GetDirectoryName(path);
-                if (!Directory.Exists(directoryPath))
-                {
-                    Directory.CreateDirectory(directoryPath);
                 }
 
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await userViewModel.UserImage.CopyToAsync(stream);
-                }
-
-                ApplicationUser user = new ApplicationUser
-                {
-                    UserName = userViewModel.Email,
-                    Email = userViewModel.Email,
-                    Member = new Member
-                    {
-                        FirstName = userViewModel.FirstName,
-                        LastName = userViewModel.LastName,
-                        Weight = userViewModel.Weight,
-                        Height = userViewModel.Height,
-                        PhotoPath = path,
-                    },
-                };
-
-                if (userViewModel.PreferedPosition.HasValue)
-                {
-                    string positionName = userViewModel.PreferedPosition.Value.ToString();
-                    Position position = _membersService.GetPositionByName(positionName);
-                    if (position == null)
-                    {
-                        position = new Position
-                        {
-                            Name = positionName
-                        };
-                    }
-
-                    MemberPositions memberPosition = new MemberPositions
-                    {
-                        Member = user.Member,
-                        Position = position
-                    };
-
-                    user.Member.MemberPositions.Add(memberPosition);
-                }
-
+                var user = await _membersService.BuildUser(userViewModel);
                 IdentityResult result = await _userManager.CreateAsync(user, userViewModel.Password);
+
                 if (result.Succeeded)
                 {
                     if (!await _roleManager.RoleExistsAsync(userViewModel.Role.ToString()))
                     {
                         await _roleManager.CreateAsync(new IdentityRole(userViewModel.Role.ToString()));
                     }
-
+                    
                     await _userManager.AddToRoleAsync(user, userViewModel.Role.ToString());
                     await _signInManager.SignInAsync(user, isPersistent: false);
 

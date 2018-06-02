@@ -19,5 +19,7 @@ namespace BLink.Models.RequestModels.Members
         public PlayerPosition? PreferedPosition { get; set; }
 
         public int? ClubId { get; set; }
+
+        public string Thumbnail { get; set; }
     }
 }

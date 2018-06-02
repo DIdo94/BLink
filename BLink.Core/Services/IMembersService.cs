@@ -1,7 +1,10 @@
 ﻿using BLink.Models;
 using BLink.Models.Enums;
+using BLink.Models.RequestModels.Accounts;
 using BLink.Models.RequestModels.Invitations;
 using BLink.Models.RequestModels.Members;
+using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -32,5 +35,7 @@ namespace BLink.Core.Services
         Position GetPositionByName(string name);
 
         Task<bool> LeaveClub(string email);
+
+        Task<ApplicationUser> BuildUser(CreateUserViewModel userViewModel);
     }
 }

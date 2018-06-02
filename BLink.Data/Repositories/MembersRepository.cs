@@ -119,7 +119,8 @@ namespace BLink.Data.Repositories
                 Height = p.Height,
                 LastName = p.LastName,
                 Weight = p.Weight,
-                PositionId = p.MemberPositions.First().PostitionId
+                PositionId = p.MemberPositions.First().PostitionId,
+                Thumbnail = p.PhotoThumbnailPath
             });
         }
 
