@@ -16,6 +16,10 @@ namespace BLink.Models.RequestModels.Members
 
         public double MaxWeight { get; set; }
 
+        public double MinAge { get; set; }
+
+        public double MaxAge { get; set; }
+
         public PlayerPosition Position { get; set; }
     }
 }

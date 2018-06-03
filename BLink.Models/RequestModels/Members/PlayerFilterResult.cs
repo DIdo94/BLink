@@ -1,4 +1,5 @@
-﻿using BLink.Models.Enums;
+﻿using System;
+using BLink.Models.Enums;
 
 namespace BLink.Models.RequestModels.Members
 {
@@ -21,5 +22,7 @@ namespace BLink.Models.RequestModels.Members
         public int? ClubId { get; set; }
 
         public string Thumbnail { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
     }
 }

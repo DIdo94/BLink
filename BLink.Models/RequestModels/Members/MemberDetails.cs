@@ -1,4 +1,5 @@
 ﻿using BLink.Models.Enums;
+using System;
 
 namespace BLink.Models.RequestModels.Members
 {
@@ -15,6 +16,8 @@ namespace BLink.Models.RequestModels.Members
         public double? Weight { get; set; }
 
         public double? Height { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
 
         public PlayerPosition? PreferedPosition { get; set; }
     }

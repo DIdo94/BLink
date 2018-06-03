@@ -70,8 +70,8 @@ namespace BLink.Data.Repositories
                 .Members
                 .Include(m => m.IdentityUser)
                 .ThenInclude(u => u.Roles)
-                .FirstOrDefaultAsync(m => 
-                    m.IdentityUser.Roles.Any(r => r.RoleId == playerRole.Id) && 
+                .FirstOrDefaultAsync(m =>
+                    m.IdentityUser.Roles.Any(r => r.RoleId == playerRole.Id) &&
                     m.Id == playerId);
         }
 
@@ -100,11 +100,8 @@ namespace BLink.Data.Repositories
                     p.LastName.StartsWith(filterCriteria.Name, StringComparison.OrdinalIgnoreCase));
             }
 
-            players = players.Where(p =>
-                p.Height >= filterCriteria.MinHeight &&
-                p.Height <= filterCriteria.MaxHeight &&
-                p.Weight >= filterCriteria.MinWeight &&
-                p.Weight <= filterCriteria.MaxWeight);
+            var now = DateTime.Now;
+            players = players.Where(p => Filter(p, filterCriteria, now));
 
             if (filterCriteria.Position != 0)
             {
@@ -120,7 +117,8 @@ namespace BLink.Data.Repositories
                 LastName = p.LastName,
                 Weight = p.Weight,
                 PositionId = p.MemberPositions.First().PostitionId,
-                Thumbnail = p.PhotoThumbnailPath
+                Thumbnail = p.PhotoThumbnailPath,
+                DateOfBirth = p.DateOfBirth
             });
         }
 
@@ -141,6 +139,17 @@ namespace BLink.Data.Repositories
         public Task<IdentityRole> GetMemberRole(Expression<Func<IdentityRole, bool>> predicate)
         {
             return _dbContext.Roles.FirstOrDefaultAsync(predicate);
+        }
+
+        private bool Filter(Member p, PlayerFilterCriteria filterCriteria, DateTime now)
+        {
+            var years = (DateTime.MinValue + (now - p.DateOfBirth.Value)).Year - 1;
+            return p.Height >= filterCriteria.MinHeight &&
+                p.Height <= filterCriteria.MaxHeight &&
+                p.Weight >= filterCriteria.MinWeight &&
+                p.Weight <= filterCriteria.MaxWeight &&
+                years >= filterCriteria.MinAge &&
+                years <= filterCriteria.MaxAge;
         }
     }
 }

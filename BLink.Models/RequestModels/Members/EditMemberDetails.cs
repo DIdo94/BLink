@@ -1,5 +1,6 @@
 ﻿using BLink.Models.Enums;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace BLink.Models.RequestModels.Members
 {
@@ -16,6 +17,8 @@ namespace BLink.Models.RequestModels.Members
         public double? Height { get; set; }
 
         public PlayerPosition? PreferedPosition { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
 
         public IFormFile UserImage { get; set; }
     }

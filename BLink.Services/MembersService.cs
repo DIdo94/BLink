@@ -68,7 +68,8 @@ namespace BLink.Services
                 LastName = member.LastName,
                 Height = member.Height,
                 PhotoPath = member.PhotoPath,
-                Weight = member.Weight
+                Weight = member.Weight,
+                DateOfBirth = member.DateOfBirth
             };
 
             if (member.MemberPositions.Any())
@@ -117,7 +118,7 @@ namespace BLink.Services
                     ClubName = i.InvitingClub.Name,
                     PlayerName = $"{i.InvitedPlayer.FirstName} {i.InvitedPlayer.LastName}",
                     Id = i.Id,
-                    Thumbnail = isCoach ? 
+                    Thumbnail = isCoach ?
                         File.ReadAllBytes(i.InvitedPlayer.PhotoThumbnailPath) :
                         File.ReadAllBytes(i.InvitingClub.PhotoThumbnailPath),
                     Description = i.Description
@@ -177,6 +178,7 @@ namespace BLink.Services
                 member.PhotoThumbnailPath = thumbnailPath;
             }
 
+            member.DateOfBirth = editMemberDetails.DateOfBirth;
             member.FirstName = editMemberDetails.FirstName;
             member.LastName = editMemberDetails.LastName;
             member.MemberPositions = new List<MemberPositions>();
@@ -236,7 +238,8 @@ namespace BLink.Services
                     Weight = userViewModel.Weight,
                     Height = userViewModel.Height,
                     PhotoPath = path,
-                    PhotoThumbnailPath = thumbnailPath
+                    PhotoThumbnailPath = thumbnailPath,
+                    DateOfBirth = userViewModel.DateOfBirth
                 },
             };
 
