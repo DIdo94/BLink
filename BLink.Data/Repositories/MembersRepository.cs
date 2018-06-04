@@ -143,7 +143,9 @@ namespace BLink.Data.Repositories
 
         private bool Filter(Member p, PlayerFilterCriteria filterCriteria, DateTime now)
         {
-            var years = (DateTime.MinValue + (now - p.DateOfBirth.Value)).Year - 1;
+            var years = p.DateOfBirth.HasValue ?
+                (DateTime.MinValue + (now - p.DateOfBirth.Value)).Year - 1
+                : 0;
             return p.Height >= filterCriteria.MinHeight &&
                 p.Height <= filterCriteria.MaxHeight &&
                 p.Weight >= filterCriteria.MinWeight &&

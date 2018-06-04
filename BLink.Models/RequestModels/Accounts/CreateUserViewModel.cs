@@ -38,6 +38,6 @@ namespace BLink.Models.RequestModels.Accounts
 
         public PlayerPosition? PreferedPosition { get; set; }
 
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
     }
 }
